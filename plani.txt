@@ -1,0 +1,507 @@
+#include <iostream>
+
+#include <stdlib.h>
+
+#include <stdio.h>
+
+#include <vector>
+
+#include <fstream>
+
+
+
+
+using namespace std;
+
+
+
+
+struct Hora
+
+{
+
+	int hora_inicio;
+
+	int min_inicio;
+
+	int hora_fin;
+
+	int min_fin;
+
+};
+
+
+
+
+struct Fecha
+
+{
+
+	string dia;
+
+	vector <Hora> horas;
+
+};
+
+
+
+
+struct Persona{
+
+	vector <Fecha> horario;
+
+};
+
+
+
+
+class Planificador{
+
+public:
+
+	Planificador(){
+
+		printf("Ingrese duración de reunión y Files de personas\n");
+
+		printf("Ejm: 00:45 a b\n");
+
+		load_input();
+
+		load_personas();
+
+		exe();
+
+		print();
+
+	}
+
+private:
+
+	struct Input{
+
+		int min;
+
+		int hora;
+
+		vector <string> files;
+
+	};
+
+
+
+
+	Input parse_read(string & read){
+
+		Input pre_input;
+
+
+
+
+	    pre_input.hora = atoi ( read.substr(0,2).c_str() );
+
+	    pre_input.min  = atoi ( read.substr(3,2).c_str() );
+
+
+
+
+	    string aux = "";
+
+
+
+
+		for (int i = 6; i < read.size(); ++i)
+
+		{
+
+			if (read[i]==' ')
+
+			{
+
+				pre_input.files.push_back(aux+".txt");
+
+				aux = "";
+
+			}
+
+			else{
+
+				aux+=read[i];
+
+			}
+
+		}
+
+		pre_input.files.push_back(aux+".txt");
+
+
+
+
+		return pre_input;
+
+	}
+
+
+
+
+	void parse_persona(string & libre, Persona & persona){
+
+		//mon 08:30-10:30 14:03-16:00 17:10-18:10
+
+		Fecha fecha_loaded;
+
+
+
+
+		fecha_loaded.dia = libre.substr (0,3);
+
+		for (int i = 4; i < libre.size();)
+
+		{
+
+			Hora hora_loaded;
+
+
+
+
+			hora_loaded.hora_inicio = atoi ( libre.substr(i,2).c_str() );
+
+			i+=3;
+
+			hora_loaded.min_inicio = atoi ( libre.substr(i,2).c_str() );
+
+			i+=3;
+
+			hora_loaded.hora_fin = atoi ( libre.substr(i,2).c_str() );
+
+			i+=3;
+
+			hora_loaded.min_fin = atoi ( libre.substr(i,2).c_str() );
+
+			i+=3;
+
+
+
+
+			fecha_loaded.horas.push_back (hora_loaded);
+
+		}
+
+		
+
+		persona.horario.push_back(fecha_loaded);
+
+	}
+
+
+
+
+	void load_input (){
+
+		string read;
+
+		getline(cin, read);
+
+		input = parse_read(read);
+
+	}
+
+
+
+
+	void load_personas (){
+
+		for (int i = 0; i < input.files.size(); ++i)
+
+		{
+
+			personas.push_back(  load_file(input.files[i].c_str() ) );
+
+		}
+
+	}
+
+
+
+
+	Persona load_file (const char * file){
+
+		Persona persona_loaded;
+
+ 		ifstream loaded (file);
+
+ 		string line;
+
+ 	    while (!loaded.eof()){
+
+ 	        getline (loaded,line);
+
+ 	        parse_persona(line, persona_loaded);
+
+ 	    }
+
+ 	    return persona_loaded;
+
+	}
+
+
+
+
+	void print(){
+
+		//Imput
+
+		printf("Tiempo de reunion: %i:%i\n", input.hora, input.min);
+
+		//Files
+
+		printf("\tFiles:\n");
+
+		for (int i = 0; i < input.files.size(); ++i)
+
+		{
+
+			cout<<"\t\t"<<i<<") "<<input.files[i]<<endl;
+
+		}
+
+		//Personas
+
+		printf("\tPersonas:\n");
+
+		for (int i = 0; i < personas.size(); ++i)
+
+		{
+
+			cout<<"\t"<<i<<")"<<endl;
+
+			for (int j = 0; j < personas[i].horario.size(); ++j)
+
+			{
+
+				cout<<"\t\t"<<j<<") "<<personas[i].horario[j].dia<<" -> ";
+
+				for (int k = 0; k < personas[i].horario[j].horas.size(); ++k)
+
+				{
+
+					cout<<personas[i].horario[j].horas[k].hora_inicio<<":";
+
+					cout<<personas[i].horario[j].horas[k].min_inicio<<"-";
+
+					cout<<personas[i].horario[j].horas[k].hora_fin<<":";
+
+					cout<<personas[i].horario[j].horas[k].min_fin<<"  ";
+
+				}
+
+				cout<<endl;
+
+			}
+
+			
+
+		}
+
+
+
+
+    // RESULTADOS 
+
+		printf("\tResultados:\n");
+
+		for (int i = 0; i < resultado.size(); ++i)
+
+		{
+
+			cout<<"\t"<<i<<")"<<endl;
+
+			for (int j = 0; j < resultado[i].horario.size(); ++j)
+
+			{
+
+				cout<<"\t\t"<<j<<") "<<resultado[i].horario[j].dia<<" -> ";
+
+				for (int k = 0; k < resultado[i].horario[j].horas.size(); ++k)
+
+				{
+
+					cout<<resultado[i].horario[j].horas[k].hora_inicio<<":";
+
+					cout<<resultado[i].horario[j].horas[k].min_inicio<<"-";
+
+					cout<<resultado[i].horario[j].horas[k].hora_fin<<":";
+
+					cout<<resultado[i].horario[j].horas[k].min_fin<<"  ";
+
+				}
+
+				cout<<endl;
+
+			}
+
+			
+
+		}
+
+	}
+
+
+
+
+	bool validar (string day){
+
+		bool res = 1;
+
+		for (int i = 0; i < personas.size(); ++i)
+
+		{
+
+			if (res ==0)return res;
+
+			for (int j = 0; j < personas[i].horario.size(); ++j)
+
+			{
+
+				if (day !=  personas[i].horario[j].dia){
+
+					res = 0;
+
+				}
+
+				else{
+
+					res = 1;
+
+					break;
+
+				}
+
+			}
+
+		}
+
+		return res;
+
+	}
+
+
+
+
+	int existe_d (Persona & p , string dia){
+
+		for (int i = 0; i < p.horario.size(); ++i)
+
+		{
+
+			if (p.horario[i].dia == dia) return i;
+
+		}
+
+		return -1;
+
+	}
+
+
+
+
+	void exe (){
+
+		Persona phtmp;
+
+		for (int i = 0; i < personas.size(); ++i)
+
+		{
+
+			for (int j = 0; j < personas[i].horario.size(); ++j)
+
+			{
+
+				//day
+
+				if (validar(personas[i].horario[j].dia)){
+
+					Fecha ftmp;
+
+					ftmp.dia = personas[i].horario[j].dia;
+
+					for (int k = 0; k < personas[i].horario[j].horas.size(); ++k)
+
+					{
+
+						Hora htmp;
+
+						htmp.hora_fin = personas[i].horario[j].horas[k].hora_fin;
+
+						htmp.min_fin = personas[i].horario[j].horas[k].min_fin;
+
+						htmp.hora_inicio = personas[i].horario[j].horas[k].hora_inicio;
+
+						htmp.min_inicio= personas[i].horario[j].horas[k].min_inicio;
+
+						
+
+						ftmp.horas.push_back(htmp);
+
+					}
+
+					int aux = existe_d(phtmp, ftmp.dia);
+
+					if (aux != -1 ){
+
+						for (int m = 0; m < ftmp.horas.size(); ++m)
+
+						{
+
+							phtmp.horario[aux].horas.push_back(ftmp.horas[m]);
+
+						}
+
+					}
+
+					else{
+
+						phtmp.horario.push_back(ftmp);
+
+					}
+
+				}
+
+			}
+
+		}
+
+		resultado.push_back(phtmp);	
+
+	}	
+
+
+
+
+	vector <Persona> resultado;
+
+	vector <Persona> personas;
+
+	Input input;
+
+};
+
+
+
+
+
+
+
+
+
+
+int main()
+
+{
+
+    cout<<"Bienvenidos al planificador" <<endl;
+
+    Planificador a ;
+
+    return 0;
+
+}
